@@ -1,26 +1,23 @@
-const express = require('express');
+const express = require("express");
+const bodyParser = require("body-parser");
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(express.json());
+// Middleware to parse JSON body
+app.use(bodyParser.json());
 
-app.post('/mpesa/validation', (req, res) => {
-  console.log('Validation:', req.body);
-  return res.status(200).json({
-    ResultCode: 0,
-    ResultDesc: 'Validation accepted'
-  });
+// M-Pesa callback endpoint
+app.post("/mpesa/callback", (req, res) => {
+  console.log("✅ M-Pesa Callback Received:", req.body);
+  res.status(200).send("Callback received successfully");
 });
 
-app.post('/mpesa/confirmation', (req, res) => {
-  console.log('Confirmation:', req.body);
-  return res.sendStatus(200);
-});
-
-app.get('/', (req, res) => {
-  res.send('M-PESA Daraja server is running!');
+// Root route (optional)
+app.get("/", (req, res) => {
+  res.send("M-Pesa Daraja Server is running.");
 });
 
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`🚀 Server is running on port ${PORT}`);
 });

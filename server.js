@@ -3,36 +3,35 @@ import express from 'express';
 import axios from 'axios';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import helmet from 'helmet'; // ✅ Import helmet
+import helmet from 'helmet';
 
 dotenv.config();
 
 const app = express();
 
-// ✅ Use Helmet with custom Content Security Policy (CSP)
-app.use(helmet());
+// Apply Helmet with custom CSP
 app.use(
-  helmet.contentSecurityPolicy({
-    useDefaults: true,
-    directives: {
-      defaultSrc: ["'self'"],
-      fontSrc: ["'self'", "https://fonts.gstatic.com"],
-      styleSrc: ["'self'", "https://fonts.googleapis.com", "'unsafe-inline'"],
-      scriptSrc: ["'self'"],
-      connectSrc: ["'self'"],
-      imgSrc: ["'self'"],
-      objectSrc: ["'none'"],
+  helmet({
+    contentSecurityPolicy: {
+      useDefaults: true,
+      directives: {
+        "default-src": ["'self'"],
+        "font-src": ["'self'", "https://fonts.gstatic.com"],
+        "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        "script-src": ["'self'", "'unsafe-inline'"],
+        "connect-src": ["'self'", "https://sandbox.safaricom.co.ke"],
+        "img-src": ["'self'", "data:"],
+      },
     },
   })
 );
 
-// ✅ Other middlewares
 app.use(cors());
 app.use(express.json());
 
 // Load keys from .env
-const consumerKey = process.env.CONSUMER_KEY || 'y53gLRv8sQfeB6yjCvwySJKAXLj9HUxiCe23Gy0bQ67jWLXe';
-const consumerSecret = process.env.CONSUMER_SECRET || 'cRI1pLYTS3iXU9VLpiob0ruSbSwsuc74etocGPUoa4FNCiAQ9epFbiiB9PkFUFmT';
+const consumerKey = process.env.CONSUMER_KEY || 'your_default_key';
+const consumerSecret = process.env.CONSUMER_SECRET || 'your_default_secret';
 
 const baseURL = 'https://sandbox.safaricom.co.ke';
 
@@ -79,7 +78,7 @@ app.post('/register-url', async (req, res) => {
   }
 });
 
-// Step 3: Webhooks
+// Step 3: Daraja Callbacks
 app.post('/confirmation', (req, res) => {
   console.log('✅ Confirmation Received:', req.body);
   res.status(200).json({ ResultCode: 0, ResultDesc: 'Accepted' });

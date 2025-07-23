@@ -3,14 +3,34 @@ import express from 'express';
 import axios from 'axios';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import helmet from 'helmet'; // ✅ Import helmet
 
 dotenv.config();
 
 const app = express();
+
+// ✅ Use Helmet with custom Content Security Policy (CSP)
+app.use(helmet());
+app.use(
+  helmet.contentSecurityPolicy({
+    useDefaults: true,
+    directives: {
+      defaultSrc: ["'self'"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      styleSrc: ["'self'", "https://fonts.googleapis.com", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
+      connectSrc: ["'self'"],
+      imgSrc: ["'self'"],
+      objectSrc: ["'none'"],
+    },
+  })
+);
+
+// ✅ Other middlewares
 app.use(cors());
 app.use(express.json());
 
-// Load keys from .env for security
+// Load keys from .env
 const consumerKey = process.env.CONSUMER_KEY || 'y53gLRv8sQfeB6yjCvwySJKAXLj9HUxiCe23Gy0bQ67jWLXe';
 const consumerSecret = process.env.CONSUMER_SECRET || 'cRI1pLYTS3iXU9VLpiob0ruSbSwsuc74etocGPUoa4FNCiAQ9epFbiiB9PkFUFmT';
 
@@ -59,16 +79,14 @@ app.post('/register-url', async (req, res) => {
   }
 });
 
-// Step 3: Daraja will POST here
+// Step 3: Webhooks
 app.post('/confirmation', (req, res) => {
   console.log('✅ Confirmation Received:', req.body);
-  // Save to DB or handle logic here
   res.status(200).json({ ResultCode: 0, ResultDesc: 'Accepted' });
 });
 
 app.post('/validation', (req, res) => {
   console.log('🟡 Validation Received:', req.body);
-  // You can do checks here before approving
   res.status(200).json({ ResultCode: 0, ResultDesc: 'Validation passed successfully' });
 });
 

@@ -1,23 +1,79 @@
-const express = require("express");
-const bodyParser = require("body-parser");
+// server.js
+import express from 'express';
+import axios from 'axios';
+import cors from 'cors';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const app = express();
+app.use(cors());
+app.use(express.json());
+
+// Load keys from .env for security
+const consumerKey = process.env.CONSUMER_KEY || 'y53gLRv8sQfeB6yjCvwySJKAXLj9HUxiCe23Gy0bQ67jWLXe';
+const consumerSecret = process.env.CONSUMER_SECRET || 'cRI1pLYTS3iXU9VLpiob0ruSbSwsuc74etocGPUoa4FNCiAQ9epFbiiB9PkFUFmT';
+
+const baseURL = 'https://sandbox.safaricom.co.ke';
+
+// Step 1: Generate Access Token
+const getAccessToken = async () => {
+  const auth = Buffer.from(`${consumerKey}:${consumerSecret}`).toString('base64');
+  try {
+    const response = await axios.get(`${baseURL}/oauth/v1/generate?grant_type=client_credentials`, {
+      headers: {
+        Authorization: `Basic ${auth}`,
+      },
+    });
+    return response.data.access_token;
+  } catch (err) {
+    console.error('Access token error:', err.response?.data || err.message);
+    return null;
+  }
+};
+
+// Step 2: Register Confirmation and Validation URLs
+app.post('/register-url', async (req, res) => {
+  const accessToken = await getAccessToken();
+  if (!accessToken) return res.status(500).json({ error: 'Access token failed' });
+
+  try {
+    const response = await axios.post(
+      `${baseURL}/mpesa/c2b/v1/registerurl`,
+      {
+        ShortCode: '6696416',
+        ResponseType: 'Completed',
+        ConfirmationURL: 'https://mpesa-daraja-server.onrender.com/confirmation',
+        ValidationURL: 'https://mpesa-daraja-server.onrender.com/validation',
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+    res.status(200).json(response.data);
+  } catch (err) {
+    console.error('Register URL error:', err.response?.data || err.message);
+    res.status(500).json({ error: 'Register URL failed' });
+  }
+});
+
+// Step 3: Daraja will POST here
+app.post('/confirmation', (req, res) => {
+  console.log('✅ Confirmation Received:', req.body);
+  // Save to DB or handle logic here
+  res.status(200).json({ ResultCode: 0, ResultDesc: 'Accepted' });
+});
+
+app.post('/validation', (req, res) => {
+  console.log('🟡 Validation Received:', req.body);
+  // You can do checks here before approving
+  res.status(200).json({ ResultCode: 0, ResultDesc: 'Validation passed successfully' });
+});
+
+// Server start
 const PORT = process.env.PORT || 3000;
-
-// Middleware to parse JSON body
-app.use(bodyParser.json());
-
-// M-Pesa callback endpoint
-app.post("/mpesa/callback", (req, res) => {
-  console.log("✅ M-Pesa Callback Received:", req.body);
-  res.status(200).send("Callback received successfully");
-});
-
-// Root route (optional)
-app.get("/", (req, res) => {
-  res.send("M-Pesa Daraja Server is running.");
-});
-
 app.listen(PORT, () => {
-  console.log(`🚀 Server is running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });

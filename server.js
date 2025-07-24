@@ -20,9 +20,19 @@ app.use(helmet());
 // Serve static files
 app.use(express.static(path.join(__dirname, "public")));
 
-// Routes
+// Main route
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+// ✅ M-Pesa callback endpoint
+app.post("/mpesa/callback", (req, res) => {
+  console.log("✅ Received M-Pesa Payment Notification:");
+  console.log(JSON.stringify(req.body, null, 2));
+
+  // You can save this to a database or process it further here
+
+  res.status(200).json({ message: "Callback received successfully" });
 });
 
 // Start server

@@ -30,9 +30,29 @@ app.post("/mpesa/callback", (req, res) => {
   console.log("✅ Received M-Pesa Payment Notification:");
   console.log(JSON.stringify(req.body, null, 2));
 
-  // You can save this to a database or process it further here
-
   res.status(200).json({ message: "Callback received successfully" });
+});
+
+// ✅ Validation endpoint
+app.post("/mpesa/validation", (req, res) => {
+  console.log("✅ VALIDATION endpoint hit!");
+  console.log("Validation Body:", JSON.stringify(req.body, null, 2));
+
+  res.status(200).json({
+    ResultCode: 0,
+    ResultDesc: "Accepted"
+  });
+});
+
+// ✅ Confirmation endpoint
+app.post("/mpesa/confirmation", (req, res) => {
+  console.log("✅ CONFIRMATION endpoint hit!");
+  console.log("Confirmation Body:", JSON.stringify(req.body, null, 2));
+
+  res.status(200).json({
+    ResultCode: 0,
+    ResultDesc: "Accepted"
+  });
 });
 
 // Start server

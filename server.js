@@ -25,34 +25,28 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-// ✅ M-Pesa callback endpoint
-app.post("/mpesa/callback", (req, res) => {
-  console.log("✅ Received M-Pesa Payment Notification:");
-  console.log(JSON.stringify(req.body, null, 2));
-
-  res.status(200).json({ message: "Callback received successfully" });
-});
-
-// ✅ Validation endpoint
+// ✅ M-Pesa validation endpoint
 app.post("/mpesa/validation", (req, res) => {
-  console.log("✅ VALIDATION endpoint hit!");
-  console.log("Validation Body:", JSON.stringify(req.body, null, 2));
-
-  res.status(200).json({
-    ResultCode: 0,
-    ResultDesc: "Accepted"
-  });
+  console.log("✅ Validation request received");
+  console.log(JSON.stringify(req.body, null, 2));
+  res.status(200).json({ ResultCode: 0, ResultDesc: "Accepted" });
 });
 
-// ✅ Confirmation endpoint
+// ✅ M-Pesa confirmation endpoint
 app.post("/mpesa/confirmation", (req, res) => {
-  console.log("✅ CONFIRMATION endpoint hit!");
-  console.log("Confirmation Body:", JSON.stringify(req.body, null, 2));
+  const { TransAmount, TransID, MSISDN, FirstName, InvoiceNumber } = req.body;
 
-  res.status(200).json({
-    ResultCode: 0,
-    ResultDesc: "Accepted"
-  });
+  console.log("✅ Confirmation received:");
+  console.log(`Amount: ${TransAmount}`);
+  console.log(`Transaction ID: ${TransID}`);
+  console.log(`Phone: ${MSISDN}`);
+  console.log(`Name: ${FirstName}`);
+  console.log(`Invoice: ${InvoiceNumber}`);
+  console.log("Full Payload:", JSON.stringify(req.body, null, 2));
+
+  // Save to DB or process as needed
+
+  res.status(200).json({ message: "Confirmation received successfully" });
 });
 
 // Start server

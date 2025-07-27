@@ -128,6 +128,8 @@ app.post("/mpesa-api/simulate", async (req, res) => {
 
 // Existing M-Pesa endpoints remain unchanged
 app.post("/mpesa/validation", (req, res) => {
+  console.log('Confirmation received:', req.body);
+  res.status(200).json({ message: 'Confirmation received successfully' });
   /* ... existing validation code ... */
 });
 

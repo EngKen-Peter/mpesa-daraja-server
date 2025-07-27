@@ -8,6 +8,11 @@ const CONSUMER_SECRET = 'cRI1pLYTS3iXU9VLpiob0ruSbSwsuc74etocGPUoa4FNCiAQ9epFbii
 let accessToken = '';
 let tokenExpiry = 0;
 
+// Add this validation at the top of generateMpesaToken()
+if (!process.env.MPESA_CONSUMER_KEY || !process.env.MPESA_CONSUMER_SECRET) {
+  throw new Error('M-Pesa credentials not configured');
+}
+
 async function generateToken() {
   try {
     const auth = Buffer.from(`${CONSUMER_KEY}:${CONSUMER_SECRET}`).toString('base64');
